@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SQL DBA Job Feed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f0f0f;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #00ff88;
+    }
+
+    .filters {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    select {
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .card {
+      background: #1e1e1e;
+      padding: 15px;
+      margin: 10px auto;
+      border-radius: 12px;
+      max-width: 600px;
+      box-shadow: 0 0 10px rgba(0,255,136,0.1);
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .company {
+      color: #aaa;
+    }
+
+    .score {
+      color: #00ff88;
+      margin-top: 5px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 12px;
+      background: #00ff88;
+      color: black;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>🔥 SQL DBA Job Feed</h2>
+
+<div class="filters">
+  <select id="filter" onchange="renderJobs()">
+    <option value="all">All</option>
+    <option value="azure">Azure</option>
+    <option value="senior">Senior</option>
+    <option value="remote">Remote</option>
+  </select>
+</div>
+
+<div id="jobs"></div>
+
+<script>
+let allJobs = [];
+
+fetch("../jobs.json")
+  .then(res => res.json())
+  .then(data => {
+    allJobs = data.jobs;
+    renderJobs();
+  });
+
+function renderJobs() {
+  let filter = document.getElementById("filter").value;
+  let container = document.getElementById("jobs");
+
+  container.innerHTML = "";
+
+  let filtered = allJobs.filter(job => {
+    let t = job.title.toLowerCase();
+
+    if (filter === "azure") return t.includes("azure");
+    if (filter === "senior") return t.includes("senior");
+    if (filter === "remote") return t.includes("remote");
+    return true;
+  });
+
+  filtered.forEach(job => {
+    container.innerHTML += `
+      <div class="card">
+        <div class="title">${job.title}</div>
+        <div class="company">${job.company}</div>
+        <div class="score">Score: ${job.score}</div>
+        <a class="btn" href="${job.link}" target="_blank">Apply</a>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
