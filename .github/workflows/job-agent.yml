@@ -1,4 +1,4 @@
-name: Job Agent
+name: AI Recruiter v5
 
 on:
   workflow_dispatch:
@@ -13,8 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -24,17 +23,13 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Run Job Engine
-        run: python main.py
+      - name: Run AI Recruiter
+        run: python backend/main.py
 
-      - name: Verify output
-        run: cat jobs.json || echo "jobs.json missing"
-
-      - name: Commit & Push jobs.json
+      - name: Commit jobs.json
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-
+          git config --global user.name "ai-bot"
+          git config --global user.email "bot@github.com"
           git add jobs.json
-          git commit -m "update jobs feed" || echo "no changes"
+          git commit -m "AI recruiter update" || echo "no changes"
           git push
