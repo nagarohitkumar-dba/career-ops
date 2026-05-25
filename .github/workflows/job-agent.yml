@@ -1,16 +1,20 @@
-name: Job Fetch
+name: AI Job Engine
 
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 */6 * * *"
 
+permissions:
+  contents: write
+
 jobs:
-  run:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -18,16 +22,26 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests beautifulsoup4
 
-      - name: Run script
-        env:
-          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
-          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+      - name: Run job engine
         run: python main.py
 
-      - name: Upload result
-        uses: actions/upload-artifact@v4
+      # 🔥 THIS IS THE FIX (creates website)
+      - name: Prepare dashboard
+        run: |
+          mkdir -p public
+          cp jobs.json public/index.json
+          echo "<h1>AI Job Engine</h1><pre id='data'></pre>
+          <script>
+          fetch('index.json').then(r=>r.json()).then(d=>{
+            document.getElementById('data').innerText = JSON.stringify(d, null, 2)
+          })
+          </script>" > public/index.html
+
+      # 🔥 PUBLISH TO GITHUB PAGES
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          name: jobs
-          path: jobs.json
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
