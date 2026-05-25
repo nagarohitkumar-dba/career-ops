@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,19 +27,29 @@ jobs:
       - name: Run job engine
         run: python main.py
 
-      # 🔥 THIS IS THE FIX (creates website)
-      - name: Prepare dashboard
+      - name: Create public site
         run: |
           mkdir -p public
-          cp jobs.json public/index.json
-          echo "<h1>AI Job Engine</h1><pre id='data'></pre>
-          <script>
-          fetch('index.json').then(r=>r.json()).then(d=>{
-            document.getElementById('data').innerText = JSON.stringify(d, null, 2)
-          })
-          </script>" > public/index.html
+          cp jobs.json public/jobs.json
 
-      # 🔥 PUBLISH TO GITHUB PAGES
+          echo "<!DOCTYPE html>
+<html>
+<head><title>SQL DBA Jobs</title></head>
+<body>
+<h1>🔥 Latest SQL DBA Jobs</h1>
+<pre id='data'></pre>
+
+<script>
+fetch('jobs.json')
+.then(r => r.json())
+.then(d => {
+document.getElementById('data').innerText = JSON.stringify(d, null, 2);
+});
+</script>
+
+</body>
+</html>" > public/index.html
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
