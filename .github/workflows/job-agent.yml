@@ -1,4 +1,4 @@
-name: AI Job Engine
+name: Job Agent
 
 on:
   workflow_dispatch:
@@ -13,8 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -24,40 +23,13 @@ jobs:
       - name: Install dependencies
         run: pip install requests beautifulsoup4
 
-      - name: Run Job Engine
+      - name: Run Job Agent
         run: python main.py
 
-      - name: Build Pages Output
+      - name: Commit results
         run: |
-          mkdir -p public
-
-          cp jobs.json public/jobs.json
-
-          cat > public/index.html << 'EOF'
-<!DOCTYPE html>
-<html>
-<head>
-    <title>AI SQL DBA Jobs</title>
-</head>
-<body style="font-family: Arial;">
-    <h1>🔥 Latest SQL Server DBA Jobs</h1>
-    <p>Auto updated every 6 hours</p>
-    <pre id="data">Loading...</pre>
-
-    <script>
-        fetch('jobs.json')
-        .then(r => r.json())
-        .then(d => {
-            document.getElementById('data').innerText =
-            JSON.stringify(d, null, 2);
-        });
-    </script>
-</body>
-</html>
-EOF
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add jobs.json
+          git commit -m "update jobs" || echo "no changes"
+          git push || echo "done"
