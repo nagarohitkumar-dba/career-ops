@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-05-25 19:29:01.908393",
+  "total_jobs": 2,
+  "jobs": [
+    {
+      "title": "Senior SQL Server DBA",
+      "company": "TCS",
+      "link": "https://careers.tcs.com",
+      "source": "Fallback",
+      "score": 8
+    },
+    {
+      "title": "Azure SQL DBA Engineer",
+      "company": "Infosys",
+      "link": "https://careers.infosys.com",
+      "source": "Fallback",
+      "score": 9
+    }
+  ]
+}
