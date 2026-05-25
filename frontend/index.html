@@ -1,31 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI SQL DBA Recruiter</title>
+  <title>AI Recruiter v5</title>
   <style>
     body {
-      font-family: Arial;
       background: #0f0f0f;
       color: white;
-      margin: 0;
+      font-family: Arial;
     }
 
-    .header {
-      padding: 20px;
+    h2 {
       text-align: center;
-      background: #111;
       color: #00ff88;
-      font-size: 20px;
-    }
-
-    .filters {
-      text-align: center;
-      padding: 10px;
-    }
-
-    select {
-      padding: 8px;
-      border-radius: 6px;
     }
 
     .card {
@@ -36,80 +22,47 @@
       border-radius: 12px;
     }
 
+    .best {
+      border: 2px solid gold;
+    }
+
     .score {
       color: #00ff88;
     }
 
-    .apply {
-      display: inline-block;
-      margin-top: 10px;
-      background: #00ff88;
+    a {
       color: black;
-      padding: 6px 10px;
+      background: #00ff88;
+      padding: 6px;
       border-radius: 6px;
       text-decoration: none;
-    }
-
-    .best {
-      border: 2px solid gold;
     }
   </style>
 </head>
 
 <body>
 
-<div class="header">
-  🚀 AI JOB RECRUITER v4
-</div>
-
-<div class="filters">
-  <select id="filter" onchange="render()">
-    <option value="all">All</option>
-    <option value="azure">Azure DBA</option>
-    <option value="senior">Senior</option>
-    <option value="remote">Remote</option>
-    <option value="sql">SQL DBA</option>
-  </select>
-</div>
+<h2>🔥 AI RECRUITER v5</h2>
 
 <div id="jobs"></div>
 
 <script>
-let jobsData = [];
-
 fetch("../jobs.json")
 .then(r => r.json())
 .then(data => {
-  jobsData = data.jobs;
-  render();
-});
-
-function render() {
-  let f = document.getElementById("filter").value;
   let box = document.getElementById("jobs");
-  box.innerHTML = "";
 
-  let filtered = jobsData.filter(j => {
-    let t = j.title.toLowerCase();
-
-    if (f === "azure") return t.includes("azure");
-    if (f === "senior") return t.includes("senior");
-    if (f === "sql") return t.includes("sql");
-    if (f === "remote") return j.remote;
-    return true;
-  });
-
-  filtered.forEach((j, i) => {
+  data.jobs.forEach((job, i) => {
     box.innerHTML += `
-      <div class="card ${i === 0 ? 'best' : ''}">
-        <h3>${j.title}</h3>
-        <p>${j.company}</p>
-        <p class="score">Score: ${j.score}</p>
-        <a class="apply" href="${j.link}" target="_blank">Apply</a>
+      <div class="card ${i===0?'best':''}">
+        <h3>${job.title}</h3>
+        <p>${job.company}</p>
+        <p class="score">Score: ${job.score}</p>
+        <a href="${job.link}" target="_blank">Apply</a>
       </div>
     `;
   });
-}
+});
 </script>
 
 </body>
