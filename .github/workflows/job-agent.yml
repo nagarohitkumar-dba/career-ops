@@ -1,0 +1,25 @@
+name: Career Ops AI Job Agent
+
+on:
+  schedule:
+    - cron: "0 */1 * * *"   # every 1 hour
+  workflow_dispatch:
+
+jobs:
+  run-job-agent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run AI Job Agent
+        run: python main.py
