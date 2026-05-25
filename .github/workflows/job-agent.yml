@@ -1,4 +1,4 @@
-name: Real Job Agent
+name: Job Agent
 
 on:
   workflow_dispatch:
@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -26,14 +27,14 @@ jobs:
       - name: Run Job Engine
         run: python main.py
 
-      - name: Show output
-        run: cat jobs.json || echo "no file"
+      - name: Verify output
+        run: cat jobs.json || echo "jobs.json missing"
 
-      - name: Commit results
+      - name: Commit & Push jobs.json
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
           git add jobs.json
-          git commit -m "real job update" || echo "no changes"
+          git commit -m "update jobs feed" || echo "no changes"
           git push
