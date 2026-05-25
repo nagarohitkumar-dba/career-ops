@@ -1,0 +1,36 @@
+body {
+  font-family: Arial;
+  background: #0f0f0f;
+  color: white;
+  text-align: center;
+}
+
+h1 {
+  color: #00ffcc;
+}
+
+.filters button {
+  margin: 5px;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.job-card {
+  background: #1e1e1e;
+  margin: 15px auto;
+  padding: 15px;
+  width: 400px;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.apply {
+  background: #00ffcc;
+  padding: 8px;
+  display: inline-block;
+  margin-top: 10px;
+  color: black;
+  text-decoration: none;
+  border-radius: 5px;
+}
