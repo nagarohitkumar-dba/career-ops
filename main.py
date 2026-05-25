@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import os
 
 KEYWORDS = [
     "SQL Server DBA",
@@ -10,6 +11,9 @@ KEYWORDS = [
     "Production DBA"
 ]
 
+# =========================
+# SCORING ENGINE
+# =========================
 def score_job(text):
     text = text.lower()
     score = 0
@@ -32,6 +36,9 @@ def score_job(text):
     return score
 
 
+# =========================
+# INDEED SCRAPER
+# =========================
 def fetch_indeed():
     jobs = []
     try:
@@ -49,12 +56,16 @@ def fetch_indeed():
                     "link": "https://in.indeed.com" + link,
                     "source": "Indeed"
                 })
-    except:
-        pass
+
+    except Exception as e:
+        print("Indeed error:", e)
 
     return jobs
 
 
+# =========================
+# NAUKRI SCRAPER
+# =========================
 def fetch_naukri():
     jobs = []
     try:
@@ -72,12 +83,60 @@ def fetch_naukri():
                     "link": link,
                     "source": "Naukri"
                 })
-    except:
-        pass
+
+    except Exception as e:
+        print("Naukri error:", e)
 
     return jobs
 
 
+# =========================
+# LINKEDIN (SAFE VERSION - API ONLY)
+# =========================
+def fetch_linkedin():
+    """
+    LinkedIn scraping DOES NOT work reliably.
+    Use official API or RapidAPI.
+
+    This function is safe placeholder so pipeline won't break.
+    """
+
+    LI_KEY = os.getenv("LINKEDIN_API_KEY")
+
+    if not LI_KEY:
+        print("LinkedIn skipped (no API key)")
+        return []
+
+    try:
+        # Example placeholder API (RapidAPI / LinkedIn partner APIs)
+        url = "https://example-linkedin-api/jobs"
+
+        headers = {
+            "Authorization": f"Bearer {LI_KEY}"
+        }
+
+        r = requests.get(url, headers=headers)
+        data = r.json()
+
+        jobs = []
+
+        for j in data.get("jobs", []):
+            jobs.append({
+                "title": j.get("title"),
+                "link": j.get("url"),
+                "source": "LinkedIn"
+            })
+
+        return jobs
+
+    except Exception as e:
+        print("LinkedIn error:", e)
+        return []
+
+
+# =========================
+# DEDUPLICATION
+# =========================
 def dedupe(jobs):
     seen = set()
     out = []
@@ -91,10 +150,17 @@ def dedupe(jobs):
     return out
 
 
+# =========================
+# MAIN ENGINE
+# =========================
 def main():
     jobs = []
+
+    print("🚀 Fetching jobs...")
+
     jobs += fetch_indeed()
     jobs += fetch_naukri()
+    jobs += fetch_linkedin()
 
     jobs = dedupe(jobs)
 
@@ -114,6 +180,11 @@ def main():
         print(f"Apply: {j['link']}\n")
 
     print("Run time:", datetime.now())
+
+    # Save output
+    with open("jobs.json", "w", encoding="utf-8") as f:
+        import json
+        json.dump(top, f, indent=2)
 
 
 if __name__ == "__main__":
