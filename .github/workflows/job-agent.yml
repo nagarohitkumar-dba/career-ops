@@ -5,42 +5,43 @@ on:
   schedule:
     - cron: "0 */6 * * *"
 
+permissions:
+  contents: write
+
 jobs:
   run:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          pip install requests
 
       - name: Run job agent
         run: python main.py
 
-      - name: Show generated files
-        run: ls -R
-
-      - name: Create frontend folder
+      - name: Ensure frontend folder exists
         run: mkdir -p frontend
 
-      - name: Copy jobs.json to frontend
-        run: cp jobs.json frontend/jobs.json
+      - name: Copy output to frontend
+        run: cp jobs.json frontend/jobs.json || true
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: jobs-output
-          path: jobs.json
+      - name: Debug files
+        run: |
+          ls -R
 
-      - name: Commit & push results
+      - name: Commit results
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add jobs.json frontend/jobs.json
           git commit -m "update jobs feed" || echo "no changes"
-          git push
+          git push || echo "no push"
