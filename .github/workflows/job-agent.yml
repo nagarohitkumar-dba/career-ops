@@ -1,35 +1,47 @@
-name: AI Recruiter v5
+name: Job Agent Runner
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 */6 * * *"
-
-permissions:
-  contents: write
+  push:
+    branches: [ main ]
 
 jobs:
   run:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install requests
-
-      - name: Run AI Recruiter
-        run: python backend/main.py
-
-      - name: Commit jobs.json
         run: |
-          git config --global user.name "ai-bot"
-          git config --global user.email "bot@github.com"
-          git add jobs.json
-          git commit -m "AI recruiter update" || echo "no changes"
-          git push
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 pandas
+
+      - name: Run Job Agent
+        run: |
+          python main.py
+
+      - name: Show generated file
+        run: |
+          ls -R
+          cat jobs.json || echo "jobs.json NOT FOUND"
+
+      - name: Upload jobs.json artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jobs-output
+          path: jobs.json
+
+      - name: Commit jobs.json to repo
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add jobs.json || true
+          git commit -m "Updated jobs.json from agent" || echo "No changes"
+          git push || echo "Nothing to push"
