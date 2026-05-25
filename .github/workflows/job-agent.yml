@@ -24,31 +24,37 @@ jobs:
       - name: Install dependencies
         run: pip install requests beautifulsoup4
 
-      - name: Run job engine
+      - name: Run Job Engine
         run: python main.py
 
-      - name: Create public site
+      - name: Build Pages Output
         run: |
           mkdir -p public
+
           cp jobs.json public/jobs.json
 
-          echo "<!DOCTYPE html>
+          cat > public/index.html << 'EOF'
+<!DOCTYPE html>
 <html>
-<head><title>SQL DBA Jobs</title></head>
-<body>
-<h1>🔥 Latest SQL DBA Jobs</h1>
-<pre id='data'></pre>
+<head>
+    <title>AI SQL DBA Jobs</title>
+</head>
+<body style="font-family: Arial;">
+    <h1>🔥 Latest SQL Server DBA Jobs</h1>
+    <p>Auto updated every 6 hours</p>
+    <pre id="data">Loading...</pre>
 
-<script>
-fetch('jobs.json')
-.then(r => r.json())
-.then(d => {
-document.getElementById('data').innerText = JSON.stringify(d, null, 2);
-});
-</script>
-
+    <script>
+        fetch('jobs.json')
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById('data').innerText =
+            JSON.stringify(d, null, 2);
+        });
+    </script>
 </body>
-</html>" > public/index.html
+</html>
+EOF
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
