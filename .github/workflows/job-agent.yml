@@ -1,4 +1,4 @@
-name: Job Agent
+name: Job Agent (DEBUG MODE)
 
 on:
   workflow_dispatch:
@@ -21,19 +21,43 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Run script
-        run: python main.py
-
-      - name: Debug - show files
+      - name: Install dependencies
         run: |
-          ls -la
-          cat jobs.json || echo "jobs.json NOT FOUND"
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
 
-      - name: Commit file
+      # 🔥 RUN SCRIPT (WITH STRICT ERROR DISPLAY)
+      - name: Run script (DEBUG)
+        run: |
+          set -e
+          python main.py
+
+      # 🔥 SHOW EXACT FILE SYSTEM STATE
+      - name: DEBUG - List all files
+        run: |
+          echo "===== CURRENT DIRECTORY ====="
+          pwd
+          echo "===== FILE LIST ====="
+          ls -la
+          echo "===== CHECK JOBS.JSON ====="
+          if [ -f jobs.json ]; then
+            echo "jobs.json EXISTS ✅"
+            cat jobs.json
+          else
+            echo "jobs.json NOT FOUND ❌"
+          fi
+
+      # 🔥 FAIL SAFE COMMIT STEP
+      - name: Commit jobs.json
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
 
-          git add jobs.json
-          git commit -m "update jobs" || echo "no changes"
-          git push || echo "push done"
+          if [ -f jobs.json ]; then
+            git add jobs.json
+            git commit -m "update jobs.json (debug fix)" || echo "no changes to commit"
+            git push || echo "push failed"
+          else
+            echo "❌ Cannot commit - jobs.json missing"
+            exit 1
+          fi
