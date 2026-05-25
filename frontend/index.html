@@ -1,69 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI Recruiter v5</title>
-  <style>
-    body {
-      background: #0f0f0f;
-      color: white;
-      font-family: Arial;
-    }
-
-    h2 {
-      text-align: center;
-      color: #00ff88;
-    }
-
-    .card {
-      background: #1e1e1e;
-      margin: 10px auto;
-      padding: 15px;
-      max-width: 600px;
-      border-radius: 12px;
-    }
-
-    .best {
-      border: 2px solid gold;
-    }
-
-    .score {
-      color: #00ff88;
-    }
-
-    a {
-      color: black;
-      background: #00ff88;
-      padding: 6px;
-      border-radius: 6px;
-      text-decoration: none;
-    }
-  </style>
+  <title>AI Job Recruiter v5</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h2>🔥 AI RECRUITER v5</h2>
+<h1>🔥 SQL DBA Job Feed (AI Recruiter v5)</h1>
+
+<div class="filters">
+  <button onclick="filterJobs('all')">All</button>
+  <button onclick="filterJobs('sql')">SQL DBA</button>
+  <button onclick="filterJobs('azure')">Azure DBA</button>
+  <button onclick="filterJobs('senior')">Senior</button>
+  <button onclick="filterJobs('remote')">Remote</button>
+</div>
 
 <div id="jobs"></div>
 
-<script>
-fetch("../jobs.json")
-.then(r => r.json())
-.then(data => {
-  let box = document.getElementById("jobs");
-
-  data.jobs.forEach((job, i) => {
-    box.innerHTML += `
-      <div class="card ${i===0?'best':''}">
-        <h3>${job.title}</h3>
-        <p>${job.company}</p>
-        <p class="score">Score: ${job.score}</p>
-        <a href="${job.link}" target="_blank">Apply</a>
-      </div>
-    `;
-  });
-});
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
