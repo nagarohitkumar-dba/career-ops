@@ -3,7 +3,7 @@ name: AI Job Recruiter V4
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 */6 * * *"   # every 6 hours
+    - cron: "0 */6 * * *"
 
 jobs:
   run:
@@ -16,20 +16,28 @@ jobs:
         with:
           python-version: "3.10"
 
-      - run: pip install requests
+      - name: Install dependencies
+        run: pip install requests
 
-      - run: python main.py
+      - name: Run Job Agent
+        run: python main.py
 
-      - run: ls -R
+      - name: Copy jobs.json to frontend
+        run: cp jobs.json frontend/jobs.json || true
 
-      - uses: actions/upload-artifact@v4
+      - name: Show files
+        run: ls -R
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: jobs
+          name: jobs-output
           path: jobs.json
 
-      - run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add jobs.json
-          git commit -m "AI jobs updated" || echo "no changes"
-          git push || echo "no push"
+      - name: Commit jobs.json to repo
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add jobs.json frontend/jobs.json || true
+          git commit -m "Updated jobs feed" || echo "No changes"
+          git push || echo "No push"
