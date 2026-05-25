@@ -19,14 +19,17 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Run Job Agent
+      - name: Run job agent
         run: python main.py
 
-      - name: Copy jobs.json to frontend
-        run: cp jobs.json frontend/jobs.json || true
-
-      - name: Show files
+      - name: Show generated files
         run: ls -R
+
+      - name: Create frontend folder
+        run: mkdir -p frontend
+
+      - name: Copy jobs.json to frontend
+        run: cp jobs.json frontend/jobs.json
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -34,10 +37,10 @@ jobs:
           name: jobs-output
           path: jobs.json
 
-      - name: Commit jobs.json to repo
+      - name: Commit & push results
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add jobs.json frontend/jobs.json || true
-          git commit -m "Updated jobs feed" || echo "No changes"
-          git push || echo "No push"
+          git add jobs.json frontend/jobs.json
+          git commit -m "update jobs feed" || echo "no changes"
+          git push
