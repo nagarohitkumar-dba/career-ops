@@ -1,20 +1,27 @@
-{
-  "generated_at": "2026-05-27 09:35:12.013621",
-  "total_jobs": 2,
-  "jobs": [
-    {
-      "title": "Senior SQL Server DBA",
-      "company": "TCS",
-      "link": "https://careers.tcs.com",
-      "source": "Fallback",
-      "score": 8
-    },
-    {
-      "title": "Azure SQL DBA Engineer",
-      "company": "Infosys",
-      "link": "https://careers.infosys.com",
-      "source": "Fallback",
-      "score": 9
-    }
-  ]
-}
+import json, re, requests
+from datetime import datetime
+
+def fetch_jobs():
+    # Placeholder: replace with LinkedIn scraping logic
+    jobs = [
+        {
+            "title": "SQL Server DBA",
+            "company": "ABC Tech",
+            "location": "Hyderabad",
+            "posted": str(datetime.now().date()),
+            "apply_link": "https://linkedin.com/jobs/view/12345",
+            "recruiter_email": "hr@abctech.com"
+        }
+    ]
+    return jobs
+
+def update_json(jobs, path="jobs.json"):
+    with open(path, "r+") as f:
+        data = json.load(f)
+        data.extend(jobs)
+        f.seek(0)
+        json.dump(data, f, indent=2)
+
+if __name__ == "__main__":
+    jobs = fetch_jobs()
+    update_json(jobs)
