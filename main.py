@@ -1,7 +1,7 @@
 import requests
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -19,6 +19,22 @@ JOBS_FILE = "frontend/jobs.json"   # ✅ single definition, points to frontend
 # =========================
 def extract_emails(text):
     return re.findall(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", text)
+
+# =========================
+# FILTER HELPER (7-day freshness)
+# =========================
+def filter_recent_jobs(jobs, days=7):
+    cutoff = datetime.now().date() - timedelta(days=days)
+    fresh = []
+    for job in jobs:
+        try:
+            posted_date = datetime.strptime(job["posted"], "%Y-%m-%d").date()
+            if posted_date >= cutoff:
+                fresh.append(job)
+        except Exception:
+            # If posted date not parseable, keep it
+            fresh.append(job)
+    return fresh
 
 # =========================
 # SOURCE 1: LinkedIn Scraper
@@ -190,6 +206,9 @@ def main():
     if not jobs:
         print("⚠️ No API data → using fallback")
         jobs = fallback()
+
+    # ✅ Apply 7-day filter
+    jobs = filter_recent_jobs(jobs, days=7)
 
     output = {
         "generated_at": str(datetime.now()),
