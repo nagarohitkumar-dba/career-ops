@@ -1,11 +1,17 @@
 import requests
 import json
+import re
 from datetime import datetime
 
-QUERY = "SQL DBA"
+# =========================
+# CONFIG
+# =========================
+JOB_KEYWORDS = ["MSSQL DBA", "SQL Server DBA", "SQLDBA", "MSSQL Server DBA"]
+LOCATIONS = ["Hyderabad", "Remote"]
+JOBS_FILE = "jobs.json"
 
 # =========================
-# STABLE SOURCE 1: REMOTIVE API
+# SOURCE 1: Remotive API
 # =========================
 def remotive():
     try:
@@ -13,57 +19,101 @@ def remotive():
         data = r.json()
 
         jobs = []
-
         for j in data.get("jobs", []):
-            if "sql" in j["title"].lower() or "dba" in j["title"].lower():
+            if any(k.lower() in j["title"].lower() for k in JOB_KEYWORDS):
                 jobs.append({
                     "title": j["title"],
                     "company": j["company_name"],
-                    "link": j["url"],
+                    "location": j.get("candidate_required_location", "Remote"),
+                    "posted": j.get("publication_date", str(datetime.now().date())),
+                    "apply_link": j["url"],
+                    "recruiter_email": None,
                     "source": "Remotive",
                     "score": 5
                 })
-
         return jobs
 
     except Exception as e:
         print("Remotive error:", e)
         return []
 
+# =========================
+# SOURCE 2: Custom Fetch (Mock LinkedIn/Hyderabad Remote)
+# =========================
+def fetch_jobs():
+    # Placeholder: Replace with Selenium/Playwright scraping logic
+    jobs = [
+        {
+            "title": "SQL Server DBA",
+            "company": "ABC Tech",
+            "location": "Hyderabad",
+            "posted": str(datetime.now().date()),
+            "apply_link": "https://linkedin.com/jobs/view/12345",
+            "recruiter_email": "hr@abctech.com",
+            "source": "LinkedIn",
+            "score": 9
+        },
+        {
+            "title": "MSSQL DBA",
+            "company": "XYZ Solutions",
+            "location": "Remote",
+            "posted": str(datetime.now().date()),
+            "apply_link": "https://linkedin.com/jobs/view/67890",
+            "recruiter_email": None,
+            "source": "LinkedIn",
+            "score": 8
+        }
+    ]
+    return jobs
 
 # =========================
-# SAFE FALLBACK (ALWAYS WORKS)
+# SAFE FALLBACK
 # =========================
 def fallback():
     return [
         {
             "title": "Senior SQL Server DBA",
             "company": "TCS",
-            "link": "https://careers.tcs.com",
+            "location": "Hyderabad",
+            "posted": str(datetime.now().date()),
+            "apply_link": "https://careers.tcs.com",
+            "recruiter_email": None,
             "source": "Fallback",
-            "score": 8
+            "score": 7
         },
         {
             "title": "Azure SQL DBA Engineer",
             "company": "Infosys",
-            "link": "https://careers.infosys.com",
+            "location": "Remote",
+            "posted": str(datetime.now().date()),
+            "apply_link": "https://careers.infosys.com",
+            "recruiter_email": None,
             "source": "Fallback",
-            "score": 9
+            "score": 6
         }
     ]
 
+# =========================
+# EMAIL EXTRACTION HELPER
+# =========================
+def extract_emails(text):
+    return re.findall(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", text)
 
 # =========================
-# MAIN
+# MAIN ENGINE
 # =========================
 def main():
     print("🚀 Job Engine Started")
 
     jobs = []
 
+    # Try Remotive
     jobs += remotive()
 
-    # ALWAYS ensure output exists
+    # Add custom fetch (LinkedIn mock)
+    jobs += fetch_jobs()
+
+    # Ensure output exists
     if not jobs:
         print("⚠️ No API data → using fallback")
         jobs = fallback()
@@ -74,11 +124,10 @@ def main():
         "jobs": jobs
     }
 
-    with open("jobs.json", "w") as f:
+    with open(JOBS_FILE, "w") as f:
         json.dump(output, f, indent=2)
 
-    print("✅ jobs.json CREATED with", len(jobs), "jobs")
-
+    print(f"✅ {JOBS_FILE} CREATED with {len(jobs)} jobs")
 
 if __name__ == "__main__":
     main()
