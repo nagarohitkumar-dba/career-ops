@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 # CONFIG
 # =========================
 JOB_KEYWORDS = ["MSSQL DBA", "SQL Server DBA", "SQLDBA", "MSSQL Server DBA"]
-JOBS_FILE = "frontend/jobs.json"
+JOBS_FILE = "frontend/jobs.json"   # ✅ single definition, points to frontend
 
 # =========================
 # EMAIL EXTRACTION HELPER
