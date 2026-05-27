@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🔥 SQL DBA Job Feed — Live</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --accent: #4f9cf9;
+    --green: #1db97a;
+    --orange: #f5a623;
+    --red: #e05252;
+    --text: #e8eaf0;
+    --muted: #8b90a0;
+    --tag-bg: #252836;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+  /* Header */
+  .header { background: linear-gradient(135deg, #1a1d27, #12151f); border-bottom: 1px solid var(--border); padding: 1.25rem 1.5rem; }
+  .header-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .header h1 { font-size: 1.3rem; font-weight: 600; }
+  .header h1 span { color: var(--accent); }
+  .meta { font-size: 12px; color: var(--muted); }
+  .meta b { color: var(--green); }
+
+  /* Stats bar */
+  .stats-bar { background: var(--card); border-bottom: 1px solid var(--border); padding: .75rem 1.5rem; }
+  .stats-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .stat { font-size: 13px; }
+  .stat b { color: var(--accent); font-size: 18px; margin-right: 4px; }
+  .stat.green b { color: var(--green); }
+  .stat.orange b { color: var(--orange); }
+
+  /* Filters */
+  .filters { max-width: 1200px; margin: 1.25rem auto; padding: 0 1.5rem; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .filters input, .filters select {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    padding: 8px 14px; border-radius: 8px; font-size: 13px; outline: none;
+  }
+  .filters input { min-width: 220px; }
+  .filters input:focus, .filters select:focus { border-color: var(--accent); }
+  .filters select option { background: var(--card); }
+  .count-badge { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .count-badge b { color: var(--text); }
+
+  /* Grid */
+  .grid { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem 2rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+
+  /* Card */
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.1rem 1.25rem; transition: border-color .2s, transform .15s;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .card.urgent { border-left: 3px solid var(--orange); }
+  .card.remote { border-left: 3px solid var(--green); }
+
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .job-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.4; }
+  .job-company { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .score-badge { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+  .score-badge.high { border-color: var(--green); color: var(--green); }
+  .score-badge.mid { border-color: var(--orange); color: var(--orange); }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { background: var(--tag-bg); border: 1px solid var(--border); border-radius: 6px; padding: 3px 9px; font-size: 11px; color: var(--muted); }
+  .tag.location { color: var(--accent); border-color: #2a4a6e; background: #0d2035; }
+  .tag.source { color: #a78bfa; border-color: #3d2f6e; background: #1a1535; }
+  .tag.urgent-tag { color: var(--orange); border-color: #6e3f0d; background: #201200; }
+  .tag.remote-tag { color: var(--green); border-color: #0d4a2e; background: #041a10; }
+
+  .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; flex-wrap: wrap; }
+  .posted { font-size: 11px; color: var(--muted); }
+  .email { font-size: 11px; color: var(--accent); word-break: break-all; }
+
+  .btn-apply {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 7px 16px; font-size: 12px; font-weight: 500; cursor: pointer;
+    text-decoration: none; display: inline-block; transition: background .15s;
+  }
+  .btn-apply:hover { background: #3a85e0; }
+  .btn-copy { background: var(--tag-bg); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 11px; cursor: pointer; }
+  .btn-copy:hover { color: var(--text); }
+
+  /* Empty / loading */
+  .empty { max-width: 1200px; margin: 4rem auto; padding: 0 1.5rem; text-align: center; color: var(--muted); }
+  .empty h2 { font-size: 1.1rem; margin-bottom: 8px; color: var(--text); }
+  .loader { display: flex; justify-content: center; align-items: center; height: 40vh; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Source colors */
+  .src-Indeed { color: #4fbdba; }
+  .src-LinkedIn { color: #6ba8e0; }
+  .src-Naukri { color: #f5a623; }
+  .src-Foundit { color: #b06ef5; }
+  .src-Glassdoor { color: #56d98e; }
+  .src-Fallback { color: #8b90a0; }
+
+  .refresh-note { font-size: 11px; color: var(--muted); text-align: center; padding: .5rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>🔥 SQL DBA Job Feed — <span>Live</span></h1>
+    <div class="meta">Last updated: <b id="updated">Loading...</b> &nbsp;|&nbsp; Auto-refreshes daily at 8:30 AM IST</div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat"><b id="s-total">—</b> Total Jobs</div>
+    <div class="stat green"><b id="s-remote">—</b> Remote</div>
+    <div class="stat orange"><b id="s-hyd">—</b> Hyderabad</div>
+    <div class="stat"><b id="s-sources">—</b> Sources</div>
+    <div class="stat"><b id="s-emails">—</b> With Email</div>
+  </div>
+</div>
+
+<div class="filters">
+  <input id="fQ" placeholder="🔍  Search title, company, skill..." oninput="render()"/>
+  <select id="fLoc" onchange="render()">
+    <option value="">All Locations</option>
+    <option>Remote</option>
+    <option>Hyderabad</option>
+    <option>Hybrid</option>
+  </select>
+  <select id="fSrc" onchange="render()">
+    <option value="">All Sources</option>
+    <option>Indeed</option>
+    <option>LinkedIn</option>
+    <option>Naukri</option>
+    <option>Foundit</option>
+    <option>Glassdoor</option>
+    <option>Fallback</option>
+  </select>
+  <select id="fScore" onchange="render()">
+    <option value="">All Scores</option>
+    <option value="8">Score 8+</option>
+    <option value="7">Score 7+</option>
+    <option value="6">Score 6+</option>
+  </select>
+  <div class="count-badge">Showing <b id="showing">0</b> jobs</div>
+</div>
+
+<div id="loader" class="loader"><div class="spinner"></div></div>
+<div id="grid" class="grid" style="display:none"></div>
+<div id="empty" class="empty" style="display:none">
+  <h2>No jobs match your filters</h2>
+  <p>Try clearing filters or wait for the next daily refresh.</p>
+</div>
+<div class="refresh-note">Jobs auto-update daily. Data sourced from Indeed, LinkedIn, Naukri, Foundit, Glassdoor.</div>
+
+<script>
+let ALL_JOBS = [];
+
+async function loadJobs() {
+  try {
+    // Try relative path first (works on GitHub Pages)
+    const res = await fetch('./jobs.json?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    // Support both formats: {jobs:[]} and []
+    ALL_JOBS = Array.isArray(data) ? data :
+               Array.isArray(data.jobs) ? data.jobs : [];
+
+    // Update header meta
+    const gen = data.generated_at || data.generatedAt || '';
+    document.getElementById('updated').textContent = gen
+      ? new Date(gen).toLocaleString('en-IN', {timeZone:'Asia/Kolkata'})
+      : 'Today';
+
+    updateStats();
+    render();
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('grid').style.display = 'grid';
+  } catch (err) {
+    console.error('Failed to load jobs.json:', err);
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('empty').style.display = 'block';
+    document.getElementById('empty').innerHTML = `
+      <h2>⚠️ Could not load jobs</h2>
+      <p style="margin-top:8px">Error: ${err.message}</p>
+      <p style="margin-top:8px;font-size:12px">Make sure the workflow has run and frontend/jobs.json exists.</p>`;
+  }
+}
+
+function updateStats() {
+  const remote = ALL_JOBS.filter(j => /remote/i.test(j.location)).length;
+  const hyd    = ALL_JOBS.filter(j => /hyderabad/i.test(j.location)).length;
+  const emails = ALL_JOBS.filter(j => j.recruiter_email).length;
+  const sources = [...new Set(ALL_JOBS.map(j => j.source))].length;
+  document.getElementById('s-total').textContent   = ALL_JOBS.length;
+  document.getElementById('s-remote').textContent  = remote;
+  document.getElementById('s-hyd').textContent     = hyd;
+  document.getElementById('s-sources').textContent = sources;
+  document.getElementById('s-emails').textContent  = emails;
+}
+
+function render() {
+  const q    = (document.getElementById('fQ').value || '').toLowerCase();
+  const loc  = document.getElementById('fLoc').value.toLowerCase();
+  const src  = document.getElementById('fSrc').value;
+  const minS = parseFloat(document.getElementById('fScore').value) || 0;
+
+  const filtered = ALL_JOBS.filter(j => {
+    if (loc && !j.location.toLowerCase().includes(loc)) return false;
+    if (src && j.source !== src) return false;
+    if (minS && (j.score || 0) < minS) return false;
+    if (q) {
+      const hay = (j.title + ' ' + j.company + ' ' + j.location + ' ' + (j.source||'')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('showing').textContent = filtered.length;
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+
+  if (!filtered.length) {
+    grid.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.style.display = 'grid';
+
+  grid.innerHTML = filtered.map(j => {
+    const isRemote  = /remote/i.test(j.location);
+    const isUrgent  = /urgent|immediate/i.test(j.title + ' ' + (j.source||''));
+    const score     = j.score || 0;
+    const scoreClass = score >= 8 ? 'high' : score >= 6 ? 'mid' : '';
+    const cardClass = isUrgent ? 'urgent' : isRemote ? 'remote' : '';
+
+    return `<div class="card ${cardClass}">
+      <div class="card-top">
+        <div>
+          <div class="job-title">${esc(j.title)}</div>
+          <div class="job-company">${esc(j.company)}</div>
+        </div>
+        <div class="score-badge ${scoreClass}">⭐ ${score}</div>
+      </div>
+      <div class="tags">
+        <span class="tag location">📍 ${esc(j.location)}</span>
+        <span class="tag source src-${j.source}">${esc(j.source)}</span>
+        ${isRemote ? '<span class="tag remote-tag">🌐 Remote</span>' : ''}
+        ${isUrgent ? '<span class="tag urgent-tag">⚡ Urgent</span>' : ''}
+      </div>
+      ${j.recruiter_email ? `<div class="email">📧 ${esc(j.recruiter_email)}</div>` : ''}
+      <div class="card-footer">
+        <span class="posted">🕐 ${esc(j.posted || 'Recent')}</span>
+        <div style="display:flex;gap:6px">
+          ${j.recruiter_email ? `<button class="btn-copy" onclick="copyEmail('${j.recruiter_email}')">Copy email</button>` : ''}
+          <a class="btn-apply" href="${esc(j.apply_link)}" target="_blank" rel="noopener">Apply ↗</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyEmail(email) {
+  navigator.clipboard.writeText(email).then(() => {
+    alert('Copied: ' + email);
+  });
+}
+
+loadJobs();
+</script>
+</body>
+</html>
