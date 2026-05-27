@@ -17,18 +17,19 @@ jobs:
         with:
           python-version: "3.10"
 
-      # (2) Install dependencies
+      # 🔧 Install dependencies
       - name: Install dependencies
         run: pip install requests selenium beautifulsoup4
 
-      # (3) Install ChromeDriver
+      # 🔧 Install ChromeDriver for Selenium
       - name: Install ChromeDriver
         run: sudo apt-get install -y chromium-browser chromium-chromedriver
 
-      # (4) Run job search script
+      # 🔧 Run your job search script
       - name: Run job search script
         run: python scripts/main.py
 
+      # 🔧 Commit updated jobs.json back to repo
       - name: Commit updated jobs.json
         run: |
           git config --global user.name "JobBot"
