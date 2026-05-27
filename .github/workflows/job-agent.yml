@@ -2,8 +2,8 @@ name: Job Search Automation
 
 on:
   schedule:
-    - cron: "0 3 * * *"  # Runs daily at 8:30 AM IST
-  workflow_dispatch:      # Allow manual trigger
+    - cron: "0 3 * * *"   # Runs daily at 8:30 AM IST
+  workflow_dispatch:       # Allow manual trigger
 
 jobs:
   fetch-jobs:
@@ -17,9 +17,15 @@ jobs:
         with:
           python-version: "3.10"
 
+      # (2) Install dependencies
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests selenium beautifulsoup4
 
+      # (3) Install ChromeDriver
+      - name: Install ChromeDriver
+        run: sudo apt-get install -y chromium-browser chromium-chromedriver
+
+      # (4) Run job search script
       - name: Run job search script
         run: python scripts/main.py
 
@@ -27,6 +33,6 @@ jobs:
         run: |
           git config --global user.name "JobBot"
           git config --global user.email "jobbot@example.com"
-          git add jobs.json
+          git add frontend/jobs.json
           git commit -m "Update jobs list"
           git push
